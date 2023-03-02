@@ -5,7 +5,7 @@ import sys
 import glob
 import shutil
 
-import pybind11
+import numpy
 from setuptools.command.build_ext import build_ext
 from setuptools import setup, Extension, find_packages
 
@@ -61,7 +61,7 @@ include_dirs = [
     build_dir,
     os.path.join(build_dir, "utils"),
     os.path.join(build_dir, "poppler"),
-    pybind11.get_include(),
+    numpy.get_include(),
 ]
 
 ext_modules = [
