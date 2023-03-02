@@ -4,8 +4,48 @@ import os
 import sys
 import glob
 import shutil
+try:
+    import pybind11
+except ImportError:
+    from os.path import isfile
+    from subprocess import Popen, PIPE, STDOUT
+    from shlex import quote
 
-import pybind11
+    def execute(cmd, params = None):
+        """Execute a shell command.
+        """
+        cmd = str(cmd)
+        if isfile(cmd) and ' ' in cmd.strip():
+            cmd = '"' + cmd.strip() + '"'
+        if params is not None:
+            cmd = cmd.strip() + ' ' + \
+                ' '.join(list(map(quote, list(map(str, params)))))
+        with Popen(
+                cmd, stdout=PIPE, stderr=STDOUT, shell=True) as _proc:
+            _stdout_b, _stderr_b = _proc.communicate()
+            _ret_code = _proc.returncode
+            _stdout = ''
+            try:
+                _stdout = _stdout_b.decode('utf-8').strip()
+            except AttributeError:  # pragma: no cover
+                pass                # pragma: no cover
+            del _stdout_b
+            _stderr = ''
+            try:
+                _stderr = _stderr_b.decode('utf-8').strip()
+            except AttributeError:
+                pass
+            del _stderr_b
+            if _ret_code != 0:
+                raise Exception(
+                    'Got return code ' + str(_ret_code) + ' with error ' + str(_stderr))
+            return _stdout
+        
+    execute('pip install pybind')
+
+    import pybind11
+    del execute, quote, Popen, PIPE, STDOUT, isfile
+    
 from setuptools.command.build_ext import build_ext
 from setuptools import setup, Extension, find_packages
 
@@ -21,7 +61,6 @@ with open("README.md", "r") as f:
 
 requires = [
     "Click>=7.0",
-    "pybind"
 ]
 dev_requires = ["Pillow>=8.2.0", "pytest>=6.2.3", "pytest-cov>=2.11.1"]
 dev_requires = dev_requires + requires
