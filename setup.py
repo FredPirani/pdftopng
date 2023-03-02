@@ -5,7 +5,7 @@ import sys
 import glob
 import shutil
 
-import numpy
+import pybind11
 from setuptools.command.build_ext import build_ext
 from setuptools import setup, Extension, find_packages
 
@@ -21,6 +21,7 @@ with open("README.md", "r") as f:
 
 requires = [
     "Click>=7.0",
+    "pybind"
 ]
 dev_requires = ["Pillow>=8.2.0", "pytest>=6.2.3", "pytest-cov>=2.11.1"]
 dev_requires = dev_requires + requires
@@ -61,7 +62,7 @@ include_dirs = [
     build_dir,
     os.path.join(build_dir, "utils"),
     os.path.join(build_dir, "poppler"),
-    numpy.get_include(),
+    pybind11.get_include(),
 ]
 
 ext_modules = [
